@@ -49,9 +49,9 @@ public class Player {
         }
     }
 
-    public void addToken(ArrayList<Token> tokens) {
-        if (tokens != null) {
-            this.tokens.addAll(tokens);
+    public void addToken(Token token) {
+        if (token != null) {
+            this.tokens.add(token);
         }
     }
 
