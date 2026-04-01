@@ -1,8 +1,12 @@
 # Mention F
 
-> Le jeu de cartes où rater son semestre demande de la stratégie. C'est un jeu basé sur Lama mais comprenant des modifications afin d'adopter des visuels en rapport avec l'UTBM
+<h1 align="center">Mention F</h1>
 
----
+<p align="center">
+  <em>Le jeu de cartes où rater son semestre demande de la stratégie. C'est un jeu basé sur Lama mais comprenant des modifications afin d'adopter des visuels en rapport avec l'UTBM.</em>
+</p>
+
+<br>
 
 ## Règles du jeu
 
