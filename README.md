@@ -3,7 +3,7 @@
 <p align="center">
   <em><strong>Le jeu de cartes où rater son semestre demande de la stratégie.</strong></em>
   <br>
-  <em>Il s'agit d'un jeu basé sur Lama mais comprenant des modifications afin d'adopter des visuels en rapport avec l'UTBM.</em>
+  <em>Il s'agit d'un jeu basé sur Lama mais comprenant des modifications afin d'adopter un style visuel en rapport avec l'UTBM.</em>
 </p>
 
 <br>
