@@ -11,7 +11,7 @@ public class Game {
 
         this.players.add(new HumanPlayer(name,age));
 
-        for (int i=0; i<nbBots; i++){
+        for (int i=0; i<nbBots; i++) {
             this.players.add(new BotPlayer());
         }
 

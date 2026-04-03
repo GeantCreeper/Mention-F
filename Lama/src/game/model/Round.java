@@ -1,7 +1,13 @@
 package game.model;
 
+import java.util.ArrayList;
+
 public class Round {
-    
+    private ArrayList<Player> players;
+
+    public Round() {
+        
+    }
     
     /* METHODS */
 
@@ -9,7 +15,7 @@ public class Round {
         
     }
 
-    public void nextTurn() {
+    public void turn() {
 
     }
 

@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 public class BotPlayer extends Player {
-    private Random random;
+    private final Random random;
 
     public BotPlayer() {
         super();

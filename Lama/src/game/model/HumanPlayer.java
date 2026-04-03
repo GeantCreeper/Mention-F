@@ -29,4 +29,15 @@ public class HumanPlayer extends Player {
         return this.age;
     }
     
+
+
+    /* METHODS */
+
+        public Card playCard(Card card) {
+        if (getHand().contains(card)) {
+            getHand().remove(card);
+            return card;
+        }
+        return null; // Card not in hand
+    }
 }
