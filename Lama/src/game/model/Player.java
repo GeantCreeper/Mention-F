@@ -3,25 +3,15 @@ package game.model;
 import java.util.ArrayList;
 
 public class Player {
-    private String name;
     private ArrayList<Token> tokens;
     private ArrayList<Card> hand;
 
 
     /* GETTERS AND SETTERS */
 
-    public Player(String name) {
-        this.name = name;
+    public Player() {   
         this.tokens = new ArrayList<>();
         this.hand = new ArrayList<>();
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return this.name;
     }
 
     public void setToken(ArrayList<Token> tokens) {
