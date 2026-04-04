@@ -51,7 +51,7 @@ public class BoardPanel {
         botsStatusBox.setStyle("-fx-background-color: #34495e; -fx-background-radius: 8;");
         botsStatusBox.setMinWidth(160);
 
-        Label botsTitle = new Label("🤖 Bots");
+        Label botsTitle = new Label("Bots");
         botsTitle.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         botsTitle.setStyle("-fx-text-fill: white;");
         botsStatusBox.getChildren().add(botsTitle);
@@ -290,7 +290,7 @@ public class BoardPanel {
     private void refreshScore() {
         HumanPlayer human = getHuman();
         int tokens = human.getTokens().stream().mapToInt(Token::getValue).sum();
-        scoreLabel.setText("ECTS perdus : " + tokens + " pts");
+        scoreLabel.setText("ECTS : " + tokens + " pts");
     }
 
     /* Utilitaires */
