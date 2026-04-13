@@ -3,16 +3,28 @@ package game.model;
 import java.util.ArrayList;
 
 public class Player {
+    private String name;
     private ArrayList<Token> tokens;
     private ArrayList<Card> hand;
     private boolean dropout;
+    private boolean skipTurn;
 
 
     /* GETTERS AND SETTERS */
 
-    public Player() {
+    public Player(String name) {
+        this.name = name;
         this.tokens = new ArrayList<>();
         this.hand = new ArrayList<>();
+        this.dropout = false;
+        this.skipTurn = false;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public String getName() {
+        return this.name;
     }
 
     public void setToken(ArrayList<Token> tokens) {
@@ -37,6 +49,14 @@ public class Player {
 
     public boolean isDropout() {
         return this.dropout;
+    }
+
+    public void setSkipTurn(boolean skipTurn) {
+        this.skipTurn = skipTurn;
+    }
+
+    public boolean isTurnSkipped() {
+        return this.skipTurn;
     }
 
 

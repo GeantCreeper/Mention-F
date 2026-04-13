@@ -6,9 +6,10 @@ import java.util.Random;
 
 public class BotPlayer extends Player {
     private Random random;
+    private static int bot_count = 1; // apartient a la classe donc partagé par tous les bots
 
     public BotPlayer() {
-        super();
+        super("Bot"+(bot_count++));
         this.random = new Random();
     }
 

@@ -7,7 +7,7 @@ import java.util.*;
 
 public class CardImageManager {
 
-    // Valeur 1->6 : 8 variantes chacune (indices 0..48), Lama (index 7) : 8 variantes (indices 49..56)
+    // Valeur 1->6 : 8 variantes chacune (indices 0..47), Valeurs 7->14 (lamas) : 1 variante chacune (indices 48..55)
     private static final int[] VALUE_START = {0, 0, 8, 16, 24, 32, 40, 48, 49, 50, 51, 52, 53, 54, 55};
     private static final int[] VALUE_COUNT = {0, 8, 8, 8, 8, 8, 8, 1, 1, 1, 1, 1, 1, 1, 1};
 
@@ -85,9 +85,10 @@ public class CardImageManager {
     }
 
     /**
-     * Convertit la valeur d'une carte en clé de tableau (1-6, ou 7 pour Lama).
+     * Convertit la valeur d'une carte en clé de tableau (1-14).
      */
     private int valueKey(Card card) {
-        return card.isLama() ? 7 : card.getValue();
+        return card.getValue();
     }
 }
+
