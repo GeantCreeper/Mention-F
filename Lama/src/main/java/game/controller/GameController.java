@@ -189,7 +189,7 @@ public class GameController {
                 card.gaussCard(game.getPlayers(), deck);
                 break;
             case 9: // Warning
-                target = getTarget(player, "Avertissement");
+                    target = getNextActivePlayer();
                 if (target != null) card.warningCard(target, deck);
                 break;
             case 10: // 2eme jury
@@ -292,4 +292,19 @@ public class GameController {
         alert.setContentText(sb.toString());
         alert.showAndWait();
     }
+
+    private Player getNextActivePlayer() {
+        ArrayList<Player> validTargets = new ArrayList<>();
+
+        for (Player p : game.getPlayers()) {
+            if (!p.isDropout()) {
+                validTargets.add(p);
+            }
+        }
+
+        if (validTargets.isEmpty()) {
+            return null;
+        }
+        return validTargets.get(0); // Retourne le prochain joueur actif (ici, le premier de la liste)
+}
 }
