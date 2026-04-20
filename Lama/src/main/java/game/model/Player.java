@@ -68,6 +68,10 @@ public abstract class Player {
         }
     }
 
+    public void addPoints(int points) {
+        this.score += points;
+    }
+
     public abstract Card playCard(Card card);
 
     public Card drawCard(Deck deck) {
