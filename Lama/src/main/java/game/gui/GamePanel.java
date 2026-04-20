@@ -21,7 +21,7 @@ public class GamePanel extends Application {
 
     public void showMenu() {
         MenuPanel menu = new MenuPanel(this);
-        Scene scene = new Scene(menu.getView(), 800, 600);   
+        Scene scene = new Scene(menu.getView(), 800, 600);
         primaryStage.setScene(scene);
     }
 
