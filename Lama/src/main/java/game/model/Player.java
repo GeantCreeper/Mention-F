@@ -87,8 +87,10 @@ public abstract class Player {
     }
 
     public int calculateScore() { // placeholder
-        int score = 0;
         for (Card card : this.hand) {
+            if (card.isLama()) {
+                score += 0;
+            }
             score += card.getValue();
         }
         return score;

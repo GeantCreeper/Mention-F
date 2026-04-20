@@ -159,6 +159,7 @@ public class GameController {
         boolean anyEmpty = game.getPlayers().stream().anyMatch(p -> !p.isDropout() && p.getHand().isEmpty());
 
         if (allDropped || anyEmpty) {
+            endOfRoundScoring();
             if (game.isGameOver()) {
                 view.showMessage("Partie terminée !", "#8e44ad");
             } else {
@@ -306,5 +307,11 @@ public class GameController {
             return null;
         }
         return validTargets.get(0); // Retourne le prochain joueur actif (ici, le premier de la liste)
-}
+    }
+
+    private void endOfRoundScoring() {
+        for (Player p : game.getPlayers()) {
+            p.addPoints(p.calculateScore());
+        }
+    }
 }
