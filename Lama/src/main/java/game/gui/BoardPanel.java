@@ -93,14 +93,16 @@ public class BoardPanel {
 
         VBox deckBox = new VBox(5, new Label("Pioche"), deckLabel);
         deckBox.setAlignment(Pos.CENTER);
-        deckBox.setPrefWidth(200);
+        deckBox.setPrefWidth(167);
+        deckBox.setMaxWidth(167);
         deckBox.setMaxHeight(Double.MAX_VALUE);
         VBox.setVgrow(deckLabel, Priority.ALWAYS);
         ((Label) deckBox.getChildren().get(0)).setStyle("-fx-text-fill: #7f8c8d;");
 
         VBox discardBox = new VBox(5, new Label("Défausse"), discardPane);
         discardBox.setAlignment(Pos.CENTER);
-        discardBox.setPrefWidth(200);
+        discardBox.setMaxWidth(167);
+        discardBox.setPrefWidth(167);
         VBox.setVgrow(discardPane, Priority.ALWAYS);
         ((Label) discardBox.getChildren().get(0)).setStyle("-fx-text-fill: #7f8c8d;");
 
@@ -146,7 +148,7 @@ public class BoardPanel {
         humanCardsBox.setAlignment(Pos.CENTER_LEFT);
         humanCardsBox.setPadding(new Insets(10));
         humanCardsBox.setMaxHeight(Double.MAX_VALUE);
-        humanCardsBox.setPrefHeight(250);  // Set preferred height to allow growing back
+        humanCardsBox.setPrefHeight(250);
         HBox.setHgrow(discardPane, Priority.ALWAYS);
 
         ScrollPane scrollHand = new ScrollPane(humanCardsBox);
@@ -234,7 +236,7 @@ public class BoardPanel {
 
             Button cardBtn = new Button("", iv);
             cardBtn.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-            cardBtn.setMinSize(150, 0);
+            cardBtn.setMinSize(167, 0);
             cardBtn.prefHeightProperty().bind(humanCardsBox.heightProperty().multiply(0.9));
             cardBtn.prefWidthProperty().bind(humanCardsBox.heightProperty().multiply(0.65));
             cardBtn.setPadding(Insets.EMPTY);
