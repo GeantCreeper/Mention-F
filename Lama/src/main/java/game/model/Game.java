@@ -8,7 +8,7 @@ public class Game {
     private boolean isGameOver;
     private int roundCount;
     private static final int MAX_ROUNDS = 8;
-    private static final int MAX_POINTS_PER_ROUND = 25;
+    private static final int MAX_POINTS_PER_ROUND = 30;
 
     public Game(int nbBots, String name, int age) {
         this.players = new ArrayList<>();
