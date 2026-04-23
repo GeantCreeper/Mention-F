@@ -11,7 +11,8 @@
 ## Règles du jeu
 
 ### But du jeu
-L'objectif est d'accumuler le plus de crédits ECTS en posant vos cartes et en gérant votre main. L'étudiant avec le plus de crédits à la fin de la partie valide son année. <br>
+L'objectif est d'accumuler le plus de crédits ECTS en posant vos cartes et en gérant votre main. <br>
+L'étudiant avec le plus de crédits à la fin de la partie valide son année. <br>
 Le joueur a le choix de jouer contre **1** ou **3** Robots. <br>
 Le jeu dure **8 manches** et les étudiants ont la possibilité de gagner jusqu'à **30 crédits** par manche. 
 
