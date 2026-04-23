@@ -35,6 +35,7 @@ La manche se termine quand un joueur vide sa main ou quand tous les joueurs ont 
 
 ## Images du jeu
 
+### Cartes Jury
 <table align="center">
   <tr>
     <td align="center"><img src="Lama/src/main/resources/images/cards/48.png" width="200"/></td>
