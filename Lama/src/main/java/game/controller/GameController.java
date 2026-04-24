@@ -3,8 +3,15 @@ package game.controller;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
-import game.gui.*;
-import game.model.*;
+
+import game.gui.BoardPanel;
+import game.gui.GamePanel;
+import game.model.BotPlayer;
+import game.model.Card;
+import game.model.Deck;
+import game.model.Game;
+import game.model.HumanPlayer;
+import game.model.Player;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 
@@ -12,30 +19,32 @@ public class GameController {
 
     private Game game;
     private BoardPanel view;
-    private GamePanel app; // Référence à la classe principale pour les transitions d'écran
+    private GamePanel app; // reference to main application for navigation
 
-    // cartes speciales necessitant un deuxieme clic du joueur
+    // special card needing to wait for a second click to resolve their effect
     private boolean waitingAcademicComeback = false;
     private boolean waitingSaving = false;
-    private boolean waitingErrorMoodle = false; 
+    private boolean waitingErrorMoodle = false;
 
-    private Player moodleTarget = null; // Stocke la cible de l'Erreur Moodle en attente
+    private Player moodleTarget = null; // Stock the target of Error Moodle while waiting for the card click
 
+    // Constructor
     public GameController(Game game, GamePanel app) {
         this.game = game;
         this.app = app;
     }
 
-    // Lie la vue au contrôleur
+    // link the controller to the view (BoardPanel)
     public void setView(BoardPanel view) {
         this.view = view;
     }
 
+    // Getter for the game model
     public Game getGame() {
         return game;
     }
 
-    // Initialise le début de la partie
+    // initialize the game and start the first round
     public void start() {
         this.game.newRound();
         if (view != null) {
@@ -43,7 +52,10 @@ public class GameController {
         }
     }
 
-    /* Actions du joueur humain reçues depuis la Vue */
+    /* Human Player Actions from the View
+    playCard is called when the human player clicks on a card in their hand to play it.
+    It checks if the card can be played, applies its effect, and then processes the turn.
+    return void */
 
     public void playCard(Card card) {
         HumanPlayer human = getHuman();
@@ -51,15 +63,15 @@ public class GameController {
         Deck deck = game.getRound().getDeck();
 
         if (waitingAcademicComeback) {
-            card.academicComebackCard(human, card); // Retire la carte sans vérifier les règles
-            game.getRound().getDiscard().addCard(card); // La pose sur la défausse
+            card.academicComebackCard(human, card); // play the card directly from hand to discard without checking if it's playable
+            game.getRound().getDiscard().addCard(card); // play the card on top of the discard
             waitingAcademicComeback = false;
             processTurn();
             return;
         }
 
         if (waitingSaving) {
-            card.savedAtJuryCard(human, deck, card); // Déplace la carte de la main vers la pioche
+            card.savedAtJuryCard(human, deck, card); // place the card back in the deck
             waitingSaving = false;
             processTurn();
             return;
@@ -67,20 +79,23 @@ public class GameController {
 
         if (waitingErrorMoodle) {
             if (moodleTarget != null) {
-                card.errorMoodleCard(human, moodleTarget, card); // Transfert entre joueurs
+                card.errorMoodleCard(human, moodleTarget, card); // transfer to the target player
                 view.showMessage("Carte donnée à " + moodleTarget.getName(), "#3c24aa");
             }
+
+            // Reset the moodle state
             waitingErrorMoodle = false;
             moodleTarget = null;
             processTurn();
             return;
         }
 
-        if (!card.canBePlayedOnTopOf(top)) {
+        if (!card.canBePlayedOnTopOf(top)) { // stop the action if the card is not playable
             view.showMessage("Cette carte ne peut pas être jouée ici", "#e74c3c");
             return;
         }
 
+        // play the card and apply its effect
         human.playCard(card);
         game.getRound().getDiscard().addCard(card);
         if(!card.isLama()) {
@@ -94,6 +109,10 @@ public class GameController {
         }
     }
 
+    /* drawCard allows the human player to draw a card from the deck.
+    If the deck is empty, it shows a message.
+    Otherwise, it processes the turn as normal after drawing.
+    return void */
     public void drawCard() {
         HumanPlayer human = getHuman();
         Card drawn = human.drawCard(game.getRound().getDeck());
@@ -106,6 +125,10 @@ public class GameController {
         processTurn();
     }
 
+    /* quitSemester allows the human player to quit the current semester.
+    It marks the human player as having quit and shows a message.
+    Then it processes the turn.
+    return void */
     public void quitSemester() {
         getHuman().quit();
         view.showMessage("Vous avez abandonné ce semestre", "#c0392b");
@@ -113,16 +136,18 @@ public class GameController {
     }
 
 
-    /* Logique interne du tour de jeu */
-
+    /* processTurn handles the logic for processing each turn in the game.
+    It checks if the round has ended and manages the turns for both human and bot players.
+    return void */
     private void processTurn() {
         if (!checkRoundEnd()) {
             playBots();
-            // Si l'humain est couché, continuer à faire jouer les bots jusqu'à fin de manche
+            // if the human player has quit, make the bots play until the end of the round without waiting for human input
             while (getHuman().isDropout() && !checkRoundEnd()) {
                 playBots();
             }
-            // Sinon gérer le skip de tour normal
+            // otherwise, if the human player is still in the game but has their turn skipped,
+            // make the bots play until the end of the round without waiting for human input
             while (!getHuman().isDropout() && getHuman().isTurnSkipped() && !checkRoundEnd()) {
                 getHuman().setSkipTurn(false);
                 view.showMessage("Vous passez votre tour.", "#e67e22");
@@ -133,6 +158,10 @@ public class GameController {
         view.refresh();
     }
 
+
+    /* playBots handles the logic for playing cards for all bot players.
+    It iterates through the bot players and makes them play cards based on their strategies.
+    return void */
     private void playBots() {
         Deck deck = game.getRound().getDeck();
 
@@ -141,12 +170,13 @@ public class GameController {
             
             if (bot instanceof BotPlayer && !bot.isDropout()) {
                 
-                // Le bot passe son tour s'il est ciblé par le 2ème Jury
+                // the bot's turn is skipped if they were targeted by a Warning card on the previous turn
                 if (bot.isTurnSkipped()) {
                     bot.setSkipTurn(false);
-                    continue; 
+                    continue;
                 }
-
+                
+                // the bot plays a card
                 Card top = game.getRound().getDiscard().getTopCard();
                 Card played = bot.playCard(top);
                 
@@ -155,10 +185,10 @@ public class GameController {
                     if (!played.isLama()) {
                         bot.addRoundPoints(played.getValue());
                     }
-                    applyCardEffect(bot, played, deck); // Application de l'effet fusionné
-                } else {
+                    applyCardEffect(bot, played, deck); // apply the card effect (some cards may cause the bot to play additional cards or skip turns, etc.)
+                } else { // if the bot cannot play a card, it draws one
                     Card drawn = bot.drawCard(deck);
-                    if (drawn == null) {
+                    if (drawn == null) { // if the deck is empty, the bot must quit
                         bot.quit();
                     }
                 }
@@ -167,33 +197,38 @@ public class GameController {
         }
     }
 
+
+    /* checkRoundEnd determines if the current round has ended.
+    It checks if all players have dropped out or if any active player has an empty hand.
+    return boolean */
     private boolean checkRoundEnd() {
         boolean allDropped = game.getPlayers().stream().allMatch(Player::isDropout);
         boolean anyEmpty = game.getPlayers().stream().anyMatch(p -> !p.isDropout() && p.getHand().isEmpty());
 
+        // If the round has ended, calculate scores, show messages, and start a new round or end the game if necessary
         if (allDropped || anyEmpty) {
             endOfRoundScoring();
-            if (game.isGameOver()) {
+            if (game.isGameOver()) { // If the game is over, show final scores and return to the menu
                 showFinalScores();
-            } else {
+            } else { // otherwise, start a new round
                 view.showMessage("Fin de manche ! Nouveau semestre.", "#8e44ad");
-                game.newRound(); // Relance une manche (re-distribue les cartes)
+                game.newRound();
             }
             return true;
         }
         return false;
     }
 
+    // Helper method to get the human player (the human is always the first player in the list)
     private HumanPlayer getHuman() {
         return (HumanPlayer) game.getPlayers().get(0);
     }
 
-    /**
-     * Applique l'effet d'une carte.
-     * Retourne 'true' si le tour est terminé, 'false' s'il est mis en pause (attente de clic humain).
-     */
+    /*
+    applyCardEffect applies the effect of a played card. It checks the card's value and executes the corresponding effect.
+    Return 'true' if the turn is completed, 'false' if it is paused (waiting for a human click). */
     private boolean applyCardEffect(Player player, Card card, Deck deck) {
-        if (player.getHand().isEmpty()) {
+        if (player.getHand().isEmpty()) { // If the player has no more cards after playing, the turn is over
             return true;
         }
 
@@ -206,83 +241,86 @@ public class GameController {
                     target = getNextActivePlayer();
                 if (target != null) card.warningCard(target, deck);
                 break;
-            case 10: // 2eme jury
+            case 10: // 2nd jury
                 target = getTarget(player, "2ème Jury");
                 if (target != null) card.secondJuryCard(target);
                 break;
             case 11: // Error Moodle
-                if (player instanceof BotPlayer) {
+                if (player instanceof BotPlayer) { // For bots, we directly choose a target and a card to give without waiting for clicks
                     target = getTarget(player, "Erreur Moodle");
                     if (target != null) {
                         Card toGive = player.getHand().get(new Random().nextInt(player.getHand().size()));
                         card.errorMoodleCard(player, target, toGive);
                     }
-                } else {
+                } else { // For the human player, we need to wait for two clicks: one to choose the target and one to choose the card to give
                     moodleTarget = getTarget(player, "Erreur Moodle");
-                    if (moodleTarget != null) {
+                    if (moodleTarget != null) { // We have the target, now we need to wait for the card click
                         waitingErrorMoodle = true;
                         view.showMessage("Cliquez sur la carte à donner à " + moodleTarget.getName(), "#9b59b6");
-                        return false; // Pause le tour pour le clic
+                        return false;
                     }
                 }
                 break;
-            case 12: // Sauvetage au Jury
-                if (player instanceof BotPlayer) {
+            case 12: // saved at the Jury
+                if (player instanceof BotPlayer) { // For bots, we directly choose a card to save without waiting for clicks
                     Card toSave = player.getHand().get(new Random().nextInt(player.getHand().size()));
                     card.savedAtJuryCard(player, deck, toSave);
-                } else {
+                } else { // For the human player, we need to wait for a click to choose the card to save
                     waitingSaving = true;
                     view.showMessage("Cliquez sur une carte à remettre en pioche", "#3498db");
-                    return false; // Pause le tour
+                    return false;
                 }
                 break;
             case 13: // Academic Comeback
-                if (player instanceof BotPlayer) {
+                if (player instanceof BotPlayer) { // For bots, we directly choose a card to play without waiting for clicks
                     Card toPlay = player.getHand().get(new Random().nextInt(player.getHand().size()));
-                    player.playCard(toPlay); 
+                    player.playCard(toPlay);
                     game.getRound().getDiscard().addCard(toPlay);
-                } else {
+                } else { // For the human player, we need to wait for a click to choose the card to play
                     waitingAcademicComeback = true;
                     view.showMessage("Cliquez sur n'importe quelle carte pour la poser", "#f1c40f");
-                    return false; // Pause le tour
+                    return false;
                 }
                 break;
             case 14: // Annal Escape
                 target = getTarget(player, "Fuite d'Annales");
-                if (player instanceof HumanPlayer && target != null) {
+                if (player instanceof HumanPlayer && target != null) { // For the human player, we show the target's hand in a pop-up
                     showPlayerHandUI(target);
                 }
                 break;
         }
-        return true; // L'effet est résolu, le tour peut continuer
+        return true; // By default, the turn is completed after applying the card effect (unless we are waiting for a click for special cards like Error Moodle, 2nd Jury, etc.)
     }
 
-    /**
-     * Trouve une cible. Si c'est un Bot, choix aléatoire. Si c'est l'Humain, Pop-up.
-     */
+    /*
+    getTarget is a helper method to get a valid target player for cards that require one (like Warning, 2nd Jury, Error Moodle, etc.).
+    It shows a dialog for the human player to choose a target, and for bots it randomly selects a valid target.
+    return Player the chosen target, or null if no valid targets are available */
     private Player getTarget(Player source, String cardName) {
         ArrayList<Player> validTargets = new ArrayList<>();
         ArrayList<String> validNames = new ArrayList<>();
 
-        for (Player p : game.getPlayers()) {
+        for (Player p : game.getPlayers()) { // The source player cannot target themselves, and cannot target players who have dropped out
             if (p != source && !p.isDropout()) {
                 validTargets.add(p);
                 validNames.add(p.getName());
             }
         }
 
+        // If there are no valid targets, return null
         if (validTargets.isEmpty()) return null;
 
-        // Comportement du Bot
+        // Bot behavior: randomly choose a valid target without showing a dialog
         if (source instanceof BotPlayer) {
             return validTargets.get(new Random().nextInt(validTargets.size()));
         }
 
-        // Comportement de l'Humain
+        // Human behavior: show a dialog to choose a target
         ChoiceDialog<String> dialog = new ChoiceDialog<>(validNames.get(0), validNames);
         dialog.setTitle("Carte : " + cardName);
         dialog.setHeaderText("Choisissez un joueur à cibler :");
         
+        // Show the dialog and wait for the user's choice
         Optional<String> result = dialog.showAndWait();
         if (result.isPresent()) {
             for (Player p : validTargets) {
@@ -292,38 +330,56 @@ public class GameController {
         return null;
     }
 
+    /*
+    showPlayerHandUI is a helper method to display the hand of a specific player in a pop-up dialog.
+    return void */
     private void showPlayerHandUI(Player target) {
+        // Build the content string with the values of the cards in the target's hand
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Fuite d'Annales");
         alert.setHeaderText("Main de : " + target.getName());
         
+        // If the target has no cards, we display a message indicating that their hand is empty
         StringBuilder sb = new StringBuilder();
         for(Card c : target.getHand()) {
             sb.append("- Carte de valeur : ").append(c.getValue()).append("\n");
         }
         if (target.getHand().isEmpty()) sb.append("Ce joueur n'a plus de cartes.");
         
+        // Set the content text of the alert to the built string and show the dialog
         alert.setContentText(sb.toString());
         alert.showAndWait();
     }
 
+
+    /*
+    getNextActivePlayer is a helper method to get the next active player in the game.
+    return Player the next active player, or null if no active players are available */
     private Player getNextActivePlayer() {
         ArrayList<Player> validTargets = new ArrayList<>();
 
+        // We consider as valid targets all players who have not dropped out, including the human player if they are still active
         for (Player p : game.getPlayers()) {
             if (!p.isDropout()) {
                 validTargets.add(p);
             }
         }
 
+        // If there are no valid targets, return null
         if (validTargets.isEmpty()) {
             return null;
         }
-        return validTargets.get(0); // Retourne le prochain joueur actif (ici, le premier de la liste)
+        // return the first valid target (the human player if they are still active, otherwise the first bot in the list who is still active)
+        return validTargets.get(0);
     }
 
+    /*
+    endOfRoundScoring is a helper method to calculate and update the scores at the end of each round.
+    return void */
     private void endOfRoundScoring() {
         int maxPerRound = game.getMaxPointsParRound();
+
+        // Each player gains points equal to their round score plus the points from their hand, up to a maximum defined by the game rules
         for (Player p : game.getPlayers()) {
             int gained = Math.min(p.getRoundScore() + p.calculateScore(), maxPerRound);
             p.addPoints(gained);
@@ -331,12 +387,18 @@ public class GameController {
         }
     }
 
+    /*
+    showFinalScores is a helper method to display the final scores of all players at the end of the game in a pop-up dialog,
+    and then return to the main menu.
+    return void */
     private void showFinalScores() {
         StringBuilder sb = new StringBuilder("Scores finaux :\n\n");
+        // We sort the players by score in descending order and build the content string with their names and scores
         game.getPlayers().stream()
             .sorted((a, b) -> a.getScore() - b.getScore())
             .forEach(p -> sb.append(p.getName()).append(" : ").append(p.getScore()).append(" pts\n"));
-
+        
+        // Set the content text of the alert to the built string and show the dialog
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Fin de partie");
         alert.setHeaderText("La partie est terminée !");
