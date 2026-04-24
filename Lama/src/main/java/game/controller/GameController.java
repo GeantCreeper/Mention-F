@@ -1,5 +1,6 @@
 package game.controller;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Random;
@@ -14,6 +15,7 @@ import game.model.HumanPlayer;
 import game.model.Player;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
+import java.text.MessageFormat;
 
 public class GameController {
 
@@ -80,7 +82,7 @@ public class GameController {
         if (waitingErrorMoodle) {
             if (moodleTarget != null) {
                 card.errorMoodleCard(human, moodleTarget, card); // transfer to the target player
-                view.showMessage("Carte donnée à " + moodleTarget.getName(), "#3c24aa");
+                view.showMessage(MessageFormat.format(LanguageController.getString("msg.card.given"), moodleTarget.getName()), "#3c24aa");
             }
 
             // Reset the moodle state
@@ -91,7 +93,7 @@ public class GameController {
         }
 
         if (!card.canBePlayedOnTopOf(top)) { // stop the action if the card is not playable
-            view.showMessage("Cette carte ne peut pas être jouée ici", "#e74c3c");
+            view.showMessage(LanguageController.getString("msg.card.not.playable"), "#e74c3c");
             return;
         }
 
@@ -104,7 +106,7 @@ public class GameController {
 
         boolean specialEffect = applyCardEffect(human, card, deck);
         if (specialEffect) {
-            view.showMessage("Carte jouée", "#27ae60");
+            view.showMessage(LanguageController.getString("msg.card.played"), "#27ae60");
             processTurn();
         }
     }
@@ -118,9 +120,9 @@ public class GameController {
         Card drawn = human.drawCard(game.getRound().getDeck());
 
         if (drawn == null) {
-            view.showMessage("La pioche est vide", "#e67e22");
+            view.showMessage(LanguageController.getString("msg.deck.empty"), "#e67e22");
         } else {
-            view.showMessage("Vous avez pioché une carte.", "#2980b9");
+            view.showMessage(LanguageController.getString("msg.card.drawn"), "#2980b9");
         }
         processTurn();
     }
@@ -131,7 +133,7 @@ public class GameController {
     return void */
     public void quitSemester() {
         getHuman().quit();
-        view.showMessage("Vous avez abandonné ce semestre", "#c0392b");
+        view.showMessage(LanguageController.getString("msg.quit"), "#c0392b");
         processTurn();
     }
 
@@ -150,7 +152,7 @@ public class GameController {
             // make the bots play until the end of the round without waiting for human input
             while (!getHuman().isDropout() && getHuman().isTurnSkipped() && !checkRoundEnd()) {
                 getHuman().setSkipTurn(false);
-                view.showMessage("Vous passez votre tour.", "#e67e22");
+                view.showMessage(LanguageController.getString("msg.skip.turn"), "#e67e22");
                 playBots();
             }
             checkRoundEnd();
@@ -211,7 +213,7 @@ public class GameController {
             if (game.isGameOver()) { // If the game is over, show final scores and return to the menu
                 showFinalScores();
             } else { // otherwise, start a new round
-                view.showMessage("Fin de manche ! Nouveau semestre.", "#8e44ad");
+                view.showMessage(LanguageController.getString("msg.round.end"), "#8e44ad");
                 game.newRound();
             }
             return true;
@@ -242,21 +244,21 @@ public class GameController {
                 if (target != null) card.warningCard(target, deck);
                 break;
             case 10: // 2nd jury
-                target = getTarget(player, "2ème Jury");
+                target = getTarget(player, LanguageController.getString("card.name.jury2"));
                 if (target != null) card.secondJuryCard(target);
                 break;
             case 11: // Error Moodle
                 if (player instanceof BotPlayer) { // For bots, we directly choose a target and a card to give without waiting for clicks
-                    target = getTarget(player, "Erreur Moodle");
+                    target = getTarget(player, LanguageController.getString("card.name.moodle"));
                     if (target != null) {
                         Card toGive = player.getHand().get(new Random().nextInt(player.getHand().size()));
                         card.errorMoodleCard(player, target, toGive);
                     }
                 } else { // For the human player, we need to wait for two clicks: one to choose the target and one to choose the card to give
-                    moodleTarget = getTarget(player, "Erreur Moodle");
+                    moodleTarget = getTarget(player, LanguageController.getString("card.name.moodle"));
                     if (moodleTarget != null) { // We have the target, now we need to wait for the card click
                         waitingErrorMoodle = true;
-                        view.showMessage("Cliquez sur la carte à donner à " + moodleTarget.getName(), "#9b59b6");
+                        view.showMessage(MessageFormat.format(LanguageController.getString("card.moodle.click"), moodleTarget.getName()), "#9b59b6");
                         return false;
                     }
                 }
@@ -267,7 +269,7 @@ public class GameController {
                     card.savedAtJuryCard(player, deck, toSave);
                 } else { // For the human player, we need to wait for a click to choose the card to save
                     waitingSaving = true;
-                    view.showMessage("Cliquez sur une carte à remettre en pioche", "#3498db");
+                    view.showMessage(LanguageController.getString("card.saving.click"), "#3498db");
                     return false;
                 }
                 break;
@@ -278,12 +280,12 @@ public class GameController {
                     game.getRound().getDiscard().addCard(toPlay);
                 } else { // For the human player, we need to wait for a click to choose the card to play
                     waitingAcademicComeback = true;
-                    view.showMessage("Cliquez sur n'importe quelle carte pour la poser", "#f1c40f");
+                    view.showMessage(LanguageController.getString("card.comeback.click"), "#f1c40f");
                     return false;
                 }
                 break;
             case 14: // Annal Escape
-                target = getTarget(player, "Fuite d'Annales");
+                target = getTarget(player, LanguageController.getString("card.name.annals"));
                 if (player instanceof HumanPlayer && target != null) { // For the human player, we show the target's hand in a pop-up
                     showPlayerHandUI(target);
                 }
@@ -317,8 +319,8 @@ public class GameController {
 
         // Human behavior: show a dialog to choose a target
         ChoiceDialog<String> dialog = new ChoiceDialog<>(validNames.get(0), validNames);
-        dialog.setTitle("Carte : " + cardName);
-        dialog.setHeaderText("Choisissez un joueur à cibler :");
+        dialog.setTitle(MessageFormat.format(LanguageController.getString("dialog.target.title"), cardName));
+        dialog.setHeaderText(LanguageController.getString("dialog.target.header"));
         
         // Show the dialog and wait for the user's choice
         Optional<String> result = dialog.showAndWait();
@@ -336,15 +338,15 @@ public class GameController {
     private void showPlayerHandUI(Player target) {
         // Build the content string with the values of the cards in the target's hand
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Fuite d'Annales");
-        alert.setHeaderText("Main de : " + target.getName());
+        alert.setTitle(LanguageController.getString("dialog.annals.title"));
+        alert.setHeaderText(MessageFormat.format(LanguageController.getString("dialog.annals.header"), target.getName()));
         
         // If the target has no cards, we display a message indicating that their hand is empty
         StringBuilder sb = new StringBuilder();
         for(Card c : target.getHand()) {
-            sb.append("- Carte de valeur : ").append(c.getValue()).append("\n");
+            sb.append(MessageFormat.format(LanguageController.getString("dialog.annals.card"), c.getValue())).append("\n");
         }
-        if (target.getHand().isEmpty()) sb.append("Ce joueur n'a plus de cartes.");
+        if (target.getHand().isEmpty()) sb.append(LanguageController.getString("dialog.annals.empty"));
         
         // Set the content text of the alert to the built string and show the dialog
         alert.setContentText(sb.toString());
@@ -392,16 +394,16 @@ public class GameController {
     and then return to the main menu.
     return void */
     private void showFinalScores() {
-        StringBuilder sb = new StringBuilder("Scores finaux :\n\n");
+        StringBuilder sb = new StringBuilder(LanguageController.getString("scores.intro"));
         // We sort the players by score in descending order and build the content string with their names and scores
         game.getPlayers().stream()
             .sorted((a, b) -> a.getScore() - b.getScore())
-            .forEach(p -> sb.append(p.getName()).append(" : ").append(p.getScore()).append(" pts\n"));
+            .forEach(p -> sb.append(MessageFormat.format(LanguageController.getString("scores.line"), p.getName(), p.getScore())));
         
         // Set the content text of the alert to the built string and show the dialog
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Fin de partie");
-        alert.setHeaderText("La partie est terminée !");
+        alert.setTitle(LanguageController.getString("scores.title"));
+        alert.setHeaderText(LanguageController.getString("scores.header"));
         alert.setContentText(sb.toString());
         alert.showAndWait();
         app.showMenu();

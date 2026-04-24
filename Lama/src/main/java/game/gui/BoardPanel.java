@@ -20,6 +20,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
+import game.controller.LanguageController;
+import java.text.MessageFormat;
 
 public class BoardPanel {
 
@@ -50,7 +52,7 @@ public class BoardPanel {
     return void */
     private void buildUI() {
         /* header */
-        Label title = new Label("Mention F");
+        Label title = new Label(LanguageController.getString("app.title"));
         title.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
         scoreLabel = new Label();
@@ -69,7 +71,7 @@ public class BoardPanel {
         botsStatusBox.setStyle("-fx-background-color: #34495e; -fx-background-radius: 8;");
         botsStatusBox.setMinWidth(160);
 
-        Label botsTitle = new Label("Bots");
+        Label botsTitle = new Label(LanguageController.getString("bots.panel.title"));
         botsTitle.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         botsTitle.setStyle("-fx-text-fill: white;");
         botsStatusBox.getChildren().add(botsTitle);
@@ -91,7 +93,7 @@ public class BoardPanel {
         discardPane.setPrefWidth(500);
         discardPane.setStyle(cardStyle("#e74c3c", "white"));
 
-        VBox deckBox = new VBox(5, new Label("Pioche"), deckLabel);
+        VBox deckBox = new VBox(5, new Label(LanguageController.getString("deck.label")), deckLabel);
         deckBox.setAlignment(Pos.CENTER);
         deckBox.setPrefWidth(167);
         deckBox.setMaxWidth(167);
@@ -99,7 +101,7 @@ public class BoardPanel {
         VBox.setVgrow(deckLabel, Priority.ALWAYS);
         ((Label) deckBox.getChildren().get(0)).setStyle("-fx-text-fill: #7f8c8d;");
 
-        VBox discardBox = new VBox(5, new Label("Défausse"), discardPane);
+        VBox discardBox = new VBox(5, new Label(LanguageController.getString("discard.label")), discardPane);
         discardBox.setAlignment(Pos.CENTER);
         discardBox.setMaxWidth(167);
         discardBox.setPrefWidth(167);
@@ -115,14 +117,14 @@ public class BoardPanel {
         topCardImageView.fitHeightProperty().bind(discardPane.heightProperty().multiply(0.9));
 
         /* info messages */
-        messageLabel = new Label("À votre tour !");
+        messageLabel = new Label(LanguageController.getString("message.your.turn"));
         messageLabel.setFont(Font.font("Arial", FontPosture.ITALIC, 14));
         messageLabel.setStyle("-fx-text-fill: #27ae60;");
 
         /* Action buttons */
-        Button drawBtn = new Button("Piocher");
-        Button quitBtn = new Button("Abandonner le semestre");
-        Button menuBtn = new Button("Menu");
+        Button drawBtn = new Button(LanguageController.getString("btn.draw"));
+        Button quitBtn = new Button(LanguageController.getString("btn.quit"));
+        Button menuBtn = new Button(LanguageController.getString("btn.menu"));
 
         drawBtn.setFont(Font.font("Arial", 14));
         quitBtn.setFont(Font.font("Arial", 14));
@@ -141,7 +143,7 @@ public class BoardPanel {
         actionBox.setAlignment(Pos.CENTER);
 
         /* Player's Hand */
-        Label handTitle = new Label("Votre main :");
+        Label handTitle = new Label(LanguageController.getString("hand.title"));
         handTitle.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
         humanCardsBox = new HBox(15);
@@ -214,7 +216,7 @@ public class BoardPanel {
 
     private void refreshDeck() {
         int remaining = controller.getGame().getRound().getDeck().getCards().size();
-        deckLabel.setText(remaining + "\ncartes");
+        deckLabel.setText(MessageFormat.format(LanguageController.getString("deck.remaining"), remaining));
     }
 
     private void refreshHand() {
@@ -259,8 +261,8 @@ public class BoardPanel {
         int i = 1;
         for (Player p : controller.getGame().getPlayers()) {
             if (p instanceof BotPlayer bot) {
-                String status = bot.isDropout() ? "Abandonné" : bot.getHand().size() + " cartes" +" (" + bot.getScore() + " ects)";
-                Label botLabel = new Label("Bot " + i + " : " + status);
+                String status = bot.isDropout() ? LanguageController.getString("bot.status.dropout") : MessageFormat.format(LanguageController.getString("bot.status.active"), bot.getHand().size(), bot.getScore());
+                Label botLabel = new Label(MessageFormat.format(LanguageController.getString("bot.label"), i, status));
                 botLabel.setStyle("-fx-text-fill: " + (bot.isDropout() ? "#e74c3c" : "#ecf0f1") + ";");
                 botLabel.setFont(Font.font("Arial", 13));
                 botsStatusBox.getChildren().add(botLabel);
@@ -271,7 +273,7 @@ public class BoardPanel {
 
     private void refreshScore() {
         HumanPlayer human = getHuman();
-        scoreLabel.setText("ECTS : " + human.getScore() + " pts");
+        scoreLabel.setText(MessageFormat.format(LanguageController.getString("score.label"), human.getScore()));
     }
 
 

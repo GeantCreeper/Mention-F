@@ -5,11 +5,15 @@ import java.util.ResourceBundle;
 import java.util.Locale;
 
 public class LanguageController {
-    private static final String BUNDLE_NAME = "resources.string";
+    private static final String BUNDLE_NAME = "string";
     private static Locale currentLocale = Locale.ENGLISH; // Par défaut, on utilise l'anglais
     
     public static void setLocale(Locale locale) {
         currentLocale = locale;
+    }
+
+    public static Locale getCurrentLocale() {
+        return currentLocale;
     }
 
     public static String getString(String key) {

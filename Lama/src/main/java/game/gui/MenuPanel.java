@@ -15,6 +15,10 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.TextAlignment;
 
+import java.util.Locale;
+
+import game.controller.LanguageController;
+
 /* MenuPanel represents the main menu of the game */
 public class MenuPanel {
 
@@ -31,25 +35,25 @@ public class MenuPanel {
     returns void */
     private void buildUI() {
         // Title and subtitle
-        Label title = new Label("Mention F");
+        Label title = new Label(LanguageController.getString("menu.title"));
         title.setFont(Font.font("Arial", FontWeight.BOLD, 48));
 
-        Label subtitle = new Label("Le jeu de cartes où rater son semestre demande de la stratégie.");
+        Label subtitle = new Label(LanguageController.getString("menu.subtitle"));
         subtitle.setFont(Font.font("Arial", FontPosture.ITALIC, 14));
         subtitle.setWrapText(true);
         subtitle.setTextAlignment(TextAlignment.CENTER);
 
         // Input for player name
-        Label nameLabel = new Label("Votre pseudo :");
+        Label nameLabel = new Label(LanguageController.getString("menu.name.label"));
         TextField nameField = new TextField();
-        nameField.setPromptText("Ex: Nikoslaï");
+        nameField.setPromptText(LanguageController.getString("menu.name.placeholder"));
         nameField.setMaxWidth(250);
 
         // Options for number of bots
-        Label botsLabel = new Label("Nombre de bots :");
+        Label botsLabel = new Label(LanguageController.getString("menu.bots.label"));
         ToggleGroup botsGroup = new ToggleGroup();
-        RadioButton bot1 = new RadioButton("1 bot");
-        RadioButton bot3 = new RadioButton("3 bots");
+        RadioButton bot1 = new RadioButton(LanguageController.getString("menu.bots.one"));
+        RadioButton bot3 = new RadioButton(LanguageController.getString("menu.bots.three"));
         bot1.setToggleGroup(botsGroup);
         bot3.setToggleGroup(botsGroup);
         bot1.setSelected(true);
@@ -58,7 +62,7 @@ public class MenuPanel {
         botsBox.setAlignment(Pos.CENTER);
 
         // Play button
-        Button playBtn = new Button("Commencer la partie");
+        Button playBtn = new Button(LanguageController.getString("menu.play.btn"));
         playBtn.setFont(Font.font("Arial", FontWeight.BOLD, 16));
 
         // Error label for input validation
@@ -68,19 +72,35 @@ public class MenuPanel {
         playBtn.setOnAction(e -> {
             String name = nameField.getText().trim();
             if (name.isEmpty()) {
-                errorLabel.setText("Veuillez entrer votre pseudo.");
+                errorLabel.setText(LanguageController.getString("menu.error.name"));
                 return;
             }
             int nbBots = bot3.isSelected() ? 3 : 1;
             app.startGame(name, nbBots);
         });
 
+        // Language toggle button (shows the OTHER language as the button label)
+        Button langBtn = new Button(LanguageController.getCurrentLocale().equals(Locale.FRENCH) ? "English" : "Français");
+        langBtn.setFont(Font.font("Arial", 12));
+        langBtn.setStyle("-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-background-radius: 6;");
+        langBtn.setOnAction(e -> {
+            if (LanguageController.getCurrentLocale().equals(Locale.FRENCH)) {
+                LanguageController.setLocale(Locale.ENGLISH);
+            } else {
+                LanguageController.setLocale(Locale.FRENCH);
+            }
+            app.showMenu(); // rebuild the menu with the new language
+        });
+ 
+        HBox langBox = new HBox(langBtn);
+        langBox.setAlignment(Pos.CENTER_RIGHT);
+
         // Layout
         view = new VBox(20);
         view.setAlignment(Pos.CENTER);
         view.setPadding(new Insets(40));
         view.getChildren().addAll(
-            title, subtitle,
+            langBox, title, subtitle,
             new Separator(),
             nameLabel, nameField,
             botsLabel, botsBox,
