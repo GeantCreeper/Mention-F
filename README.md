@@ -52,9 +52,10 @@ La manche se termine quand un joueur vide sa main ou quand tous les joueurs ont 
     <td align="center"><img src="Lama/src/main/resources/images/english_cards/55.png" width="200"/></td>
   </tr>
 </table>
-*[lien image du menu]*
+![Menu](Lama/src/main/resources/images/menu_screen.png)
+*Légende : Menu du jeu.*
 
-![Placeholder - Plateau de jeu](chemin)
+![Plateau de jeu](Lama/src/main/resources/images/ingame_screen.png)
 *Légende : Aperçu d'une partie en cours.*
 
 ---
