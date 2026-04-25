@@ -53,10 +53,13 @@ La manche se termine quand un joueur vide sa main ou quand tous les joueurs ont 
   </tr>
 </table>
 <br><br>
-![Menu](Lama/src/main/resources/images/menu_screen.png) <br>
+
+![Menu](Lama/src/main/resources/images/menu_screen.png)
+<br>
 *Légende : Menu du jeu.*
 <br><br>
-![Plateau de jeu](Lama/src/main/resources/images/ingame_screen.png)<br>
+![Plateau de jeu](Lama/src/main/resources/images/ingame_screen.png)
+<br>
 *Légende : Aperçu d'une partie en cours.*
 
 ---
